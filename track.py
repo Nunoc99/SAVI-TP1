@@ -56,9 +56,6 @@ class Detection():
         self.stamp = stamp
         self.detection_image = image[self.top:self.bottom, self.left:self.right]
 
-        # cv2.imshow('Detection ' + self.detection_id, self.detection_image )
-        # cv2.waitKey(0)
-
     def draw(self, image, color, draw_position = 'bottom', text=None):
         # Draw rectangle
         start_point=(self.left, self.top)
@@ -101,34 +98,26 @@ class Track():
         #Draw only last detection
         self.detections[-1].draw(image, self.color, draw_position = 'top', text= self.track_name)
 
+        # Draw tracking line
         for detection_a, detection_b in zip(self.detections[0:-1], self.detections[1:]):
             start_point = detection_a.getLowerMiddlePoint()
             end_point = detection_b.getLowerMiddlePoint()
             cv2.line(image, start_point, end_point, self.color, 2) 
 
-
+        # Update tracker with detection
     def update(self, detection):
         self.detections.append(detection)
 
-
+        # Template match last detection and create new one
     def track_template(self, image_gray, video_frame_number, stamp):
 
         template = self.detections[-1].detection_image
         h,w = template.shape
-        # cv2.imshow('Template',template)
-        # cv2.waitKey(0)
-
-        # print('Track ' + self.track_id + ' running track ...')
 
         result = cv2.matchTemplate(image_gray, template, 
                                    cv2.TM_CCOEFF_NORMED)
 
         _, max_val, _, max_loc = cv2.minMaxLoc(result)
-
-        # print(max_val)
-        # threshold = 0.2
-        # if max_val < threshold:
-        #     return
 
         # Convert to Detection convention left, right, top, bottom
         x, y = max_loc
@@ -137,23 +126,10 @@ class Track():
         top = int(y)
         bottom = int(y + h)
 
-
+        # Create new detection
         detection_id = 'Track_' + str(video_frame_number)
         detection = Detection(left, right, top, bottom, detection_id, self.detections[-1].detection_name, self.detections[-1].unknown, self.detections[-1].stamp, image_gray)
         self.detections.append(detection)
-
-        # Debug
-        # height, width = image_gray.shape
-        # h,w = template.shape
-        # cv2.rectangle(image_gray, (max_loc[0], max_loc[1]), (max_loc[0]+w, max_loc[1]+h), 255, 4)
-
-        # cv2.namedWindow('TemplateMatch',cv2.WINDOW_NORMAL)
-        # cv2.resizeWindow('TemplateMatch', int(width/2), int(height/2))
-        # cv2.imshow('TemplateMatch', image_gray)
-        # cv2.waitKey(0)
-
-
-
 
     def __str__(self):
         return 'Track' + str(self.track_id) + ' has ' + str(len(self.detections)) + ' detections. Active = ' + str(self.active)

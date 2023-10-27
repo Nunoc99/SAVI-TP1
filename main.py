@@ -1,36 +1,39 @@
 #!/usr/bin/env python3
 
+# Authors:  José Silva, Mário Vasconcelos, Nuno Cunha
+# Nmec:     103268, 84081, 95167
+# Email:    josesilva8@ua.pt, mario.vasconcelos@ua.pt, nunocunha99@ua.pt
+# Version:  1.2
+# Date:     27/10/2023
+
 import cv2
 import numpy as np
 from os import listdir
 import face_recognition
-import math
 import copy 
-import time
 from random import randint
-from tkinter import *
-from tkinter import messagebox
+
 
 from faceRecog import *
 from track import *
 
-#Notas:
+# TODO: 
+# .Deteção da saída de pessoas;
+# .Melhorar performance;
+
+#Notas: (ignorar)
 #. Falta fazer o deepcopy;
 #. Utilizar a classe detections;
 #. fr = FaceRecognition()
 #. Porquê fr.process_current_frame se a leitura de imagens é sequencial?
 #. https://github.com/ageitgey/face_recognition
-#. Performance improvements na documentação
-#. Fator de decisão mais fácil de modificiar
-#. Separar Accuracy do nome
+#. Separar Accuracy e JPG do nome
 #. Retirar o .jpg do ficheiro
-#. Para quê template match se a pessoa é reconhecida pelo sistema?
-#. Gravar pessoas desconhecidas?
-#. Detetar pessoas a sair da janela
-def w_text(image, text, pos):
-    cv2.putText(image, text,
-        pos, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1, cv2.LINE_AA)
 
+
+def w_text(image, text, pos):
+    cv2.putText(image, text, pos, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1, cv2.LINE_AA)
+        
 def main():
     # Parameters
     deactivate_threshold = 8.0 # secs
@@ -51,9 +54,6 @@ def main():
     for people in os.listdir('faces'):
         all_known_people.append(people[:-4])
 
-    
-
-
     while (cap.isOpened()):
         
         ret, image_rgb = cap.read()
@@ -70,26 +70,24 @@ def main():
         image_gray = cv2.resize(image_gray, (0,0), fx=0.5, fy=0.5)
         h, w, _ = image_gui.shape
 
-        # print(h)
-        # print(w) 
-        # Detect all faces 
+        # Detect all frame faces
         fr.face_locations = face_recognition.face_locations(image_gui)
         fr.face_encodings = face_recognition.face_encodings(image_gui, fr.face_locations)
        
-    
         # ------------------------------------------------------
-        # Recognise faces on the frame
+        # Recognise and classify each face
         # ------------------------------------------------------
         fr.face_names = []
         fr.face_unknown = []
         for face_encoding in fr.face_encodings:
             matches = face_recognition.compare_faces(fr.known_face_encodings, face_encoding)
+            
+            # Face's Initial values
             name = 'Unknown' + str(face_counter)
             accuracy = 0
             unknown = True
  
             face_distances = face_recognition.face_distance(fr.known_face_encodings, face_encoding)
-
             best_match_index = np.argmin(face_distances)
 
             if matches[best_match_index]:
@@ -100,6 +98,7 @@ def main():
             fr.face_names.append(name)
             fr.face_accuracy.append(accuracy)
             fr.face_unknown.append(unknown)
+
         # ---------------------------------------------------------------------------------
         # Create list of current frame detections
         # ---------------------------------------------------------------------------------
@@ -115,19 +114,16 @@ def main():
         all_detections = copy.deepcopy(detections)
 
         # ------------------------------------------------------
-        # Association step. Associate detections with tracks
+        # Associate detections to existing tracks 
         # ------------------------------------------------------
         idxs_detections_to_remove = []
         active_detections = []
         for idx_detection, detection in enumerate(detections):
             active_detections.append(detection.detection_name)
 
-            for track in tracks:
-                
-                # print('Det: '+str(detection.detection_name) + ' T:'+str(track.track_name))
+            for track in tracks:  
                 #If track is not active,do nothing;
                 if not track.active:
-                    # print('Not active ('+str(track.track_name)+')')
                     continue
                 
                 # # Avoid attaching a known person to an unknown track   
@@ -136,30 +132,29 @@ def main():
                 #     idxs_detections_to_remove.append(idx_detection)
                 #     break
 
-                # Attach a known person to a known track
+                # Attach detections and tracker with the same name
                 if (detection.detection_name == track.track_name):
-                    track.update(detection) # add detection to track
+                    track.update(detection)
                     idxs_detections_to_remove.append(idx_detection)
-                    # print('3rd option ('+str(track.track_name)+')')
                     break 
                     
-                # Attach using IOU and avoid bad detections to take over them main track
-                # if (iou > iou_threshold) and (detection.unknown == False):
+                # Attach detection to current tracker using IOU
                 iou = computeIOU(detection, track.detections[-1])
                 if (iou > iou_threshold):
-                    if (detection.unknown == False) and (track.unknown == True):
-                        #Update current track to known with name
+                    # If a detection is known and the tracker is unknown (happens when an unknown tracker is created first before the face is recognised)
+                    if (detection.unknown == False) and (track.unknown == True): 
+                        # Update the unknonw tracker with face data
                         track.track_name = detection.detection_name
                         track.known = True
                         idxs_detections_to_remove.append(idx_detection)
                         break
                     else:
+                        # Just update the tracker
                         track.update(detection) # add detection to track
                         idxs_detections_to_remove.append(idx_detection)
-                        # print('4nd option ('+str(track.track_name)+')')
                         break 
 
-
+        # List non used detections to create new tracks
         idxs_detections_to_remove.reverse()
         for idx in idxs_detections_to_remove:
             del detections[idx]
@@ -175,46 +170,45 @@ def main():
             
             
         # --------------------------------------
-        # Deactivate tracks if last detection has been seen a long time ago
+        # Deactivate or eliminate tracks if last detection has been seen a long time ago
         # --------------------------------------
         idx_tracks_to_delete = []
-
         for idx_track, track in enumerate(tracks):
             time_since_last_detection = frame_stamp - track.detections[-1].stamp
 
-
-            # Delete unknown tracks to avoid visual trash 
+            # Delete unknown tracks to avoid visual trash (common with bad detections)
             if (time_since_last_detection > delete_threshold) and (track.unknown == True):
                 track.active = False
                 idx_tracks_to_delete.append(idx_track)
 
-            # De-activate known tracks 
+            # De-activate known tracks after a long time
             if (time_since_last_detection > deactivate_threshold) and (track.unknown == False):                  
-                # print('Track '+ str(track.track_id) + ' deactivated') 
                 track.active = False
 
+        # Update track list only with active ones
         idx_tracks_to_delete.reverse()
         for idx in idx_tracks_to_delete:
-            # print('Track '+ str(track.track_id) + ' deleted')
             del tracks[idx]       
 
         # --------------------------------------
-        # Find existing trackers that did not haqve an associated detection in this frame
+        # Template match existing trackers that did not have an associated detection in this frame
         # --------------------------------------
+
+        # Generate a box to detect trackers leaving the frame
         # h, w, _ = image_gui.shape
         # tracking_padding = 0.25
         # track_rect_sp = (int(w*tracking_padding), int(h*tracking_padding))
         # track_rect_ep = (int(w - w*tracking_padding),int(h - h*tracking_padding))
         # cv2.rectangle(image_gui,track_rect_sp,track_rect_ep,(0,255,0),1)
-        
 
         for track in tracks:
             if (track.detections[-1].stamp != frame_stamp): 
                 track.track_template(image_gray, video_frame_number, frame_stamp)
-            # print('Detection: ('+ str(track.detections[-1].cx) +','+ str(track.detections[-1].cy)+')')
+    
         # ----------------------------------------------------------------------------------------
         # Visualization
         # ----------------------------------------------------------------------------------------
+        # Draw detections
         for detection in all_detections:
             detection.draw(image_gui, (0,0,255))
 
@@ -256,13 +250,14 @@ def main():
         # View main frame
         cv2.imshow('Frame', image_gui)
 
-
+        # Frame Commands
         k = cv2.waitKey(1) & 0xFF
         if k == ord('q'):
             break
         if k == ord('p'):
             cv2.waitKey(-1) 
 
+        # Update frame number
         video_frame_number += 1
 
     cap.release()

@@ -1,5 +1,5 @@
 # Faces folder
 faces/
-
+__pycache__
 
 !README.md
