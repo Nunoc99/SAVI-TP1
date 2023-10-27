@@ -1,17 +1,25 @@
 # SAVI-TP1
-Web Face Recognition work 23-24
 
-Para o funcionamento do programa "main_final.py" é necessário:
- - ter o ficheiro "faceRecog.py" na pasta onde se encontra o ficheiro "main_final.py"
- - instalar o mediapipe - "pip install mediapipe"
- - pip install face_recognition
- - pip install dlib==19.22
- - fazer o download do seguinte ficheiro a partir deste link "https://github.com/google/mediapipe/blob/master/docs/solutions/face_detection.md" e colocar este ficheiro na pasta onde está a correr o ficheiro "main_final.py"
+Pratical Work 1  - Real Time Face Recognition script <br>
+SAVI - 2023/2024 Universidade de Aveiro
 
+## Contribuidores: 
+### Grupo 5
+- José Silva (103268) josesilva8@ua.pt
+- Mário Vasconcelos (84081) mario.vasconcelos@ua.pt
+- Nuno Cunha (95167) nunocunha99@ua.pt
+  
+## Instalação
+Dependências de pacotes:
+- `pip install mediapipe`
+- `pip install face_recognition`
+- `pip install dlib==19.22`
 
+## Guia de utilizador
+(manual)
+
+## Atualizações
 Update, o new_main e o faceRecog para correr devem instalar/atualizar o seguinte:
-pip install face_recognition
-pip install dlib==19.22
 
 Neste momento, o new_main, dei-lhe este nome pq é temporário, faz o reconhecimento através de uma base de dados.
 Ele vai buscar a uma pasta local, que por acaso dei-lhe o nome de "faces" e coloquei uma imagem minha e uma do Messi,
