@@ -2,21 +2,25 @@
 
 Pratical Work 1  - Real Time Face Recognition script <br>
 SAVI - 2023/2024 Universidade de Aveiro
-
+<br>
+<br>
 ## Contribuidores: 
 ### Grupo 5
 - José Silva (103268) josesilva8@ua.pt
 - Mário Vasconcelos (84081) mario.vasconcelos@ua.pt
 - Nuno Cunha (95167) nunocunha99@ua.pt
-  
+ <br>
+ 
 ## Instalação
 Dependências de pacotes:
 - `pip install mediapipe`
 - `pip install face_recognition`
 - `pip install dlib==19.22`
+<br>
 
 ## Guia de utilizador
 (manual)
+<br>
 
 ## Atualizações
 Update, o new_main e o faceRecog para correr devem instalar/atualizar o seguinte:
