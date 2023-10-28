@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
-import cv2
+
 import numpy as np
 import os 
 import face_recognition
-import sys
 import math
 
 
-def face_accuracy(face_distance, face_match_threshold = 0.6):
+def face_accuracy(face_distance, face_match_threshold = 0.75):
     range = (1.0 - face_match_threshold)
     lin_val = (1.0 - face_distance) / (range * 2.0)
 
