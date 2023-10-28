@@ -66,8 +66,8 @@ def main():
         image_gray = cv2.cvtColor(image_gui, cv2.COLOR_BGR2GRAY)
 
         # Resize frame
-        image_gui = cv2.resize(image_gui, (0,0), fx=0.5, fy=0.5)
-        image_gray = cv2.resize(image_gray, (0,0), fx=0.5, fy=0.5)
+        # image_gui = cv2.resize(image_gui, (0,0), fx=0.5, fy=0.5)
+        # image_gray = cv2.resize(image_gray, (0,0), fx=0.5, fy=0.5)
         h, w, _ = image_gui.shape
 
         # Detect all frame faces

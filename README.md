@@ -13,6 +13,7 @@ SAVI - 2023/2024 Universidade de Aveiro
  
 ## Instalação
 Dependências de pacotes:
+- `pip install opencv-python`
 - `pip install mediapipe`
 - `pip install face_recognition`
 - `pip install dlib==19.22`

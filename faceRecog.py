@@ -43,5 +43,5 @@ class FaceRecognition:
             self.known_face_encodings.append(face_encoding)
             self.known_face_names.append(image[:-4])
 
-        print(self.known_face_names)
+        #print(self.known_face_names)
 
