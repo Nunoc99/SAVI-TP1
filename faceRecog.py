@@ -20,7 +20,7 @@ def face_accuracy(face_distance, face_match_threshold = 0.6):
         return str(round(val, 2)) + '%'
     
 
-class FaceRecognition:
+class FaceRecognition():
     face_locations = []
     face_encodings = []
     face_names = []
@@ -30,18 +30,29 @@ class FaceRecognition:
     face_accuracy = []
     face_unknown = []
 
+
     def __init__(self):
         self.encode_faces()
 
 
-
     def encode_faces(self):
         for image in os.listdir('faces'):
-            face_image = face_recognition.load_image_file(f'faces/{image}')
-            face_encoding = face_recognition.face_encodings(face_image)[0]
+            
+            try: 
+                face_image = face_recognition.load_image_file(f'faces/{image}')
+                face_encoding = face_recognition.face_encodings(face_image)[0]
 
-            self.known_face_encodings.append(face_encoding)
-            self.known_face_names.append(image[:-4])
+                self.known_face_encodings.append(face_encoding)
+                self.known_face_names.append(image)
 
-        #print(self.known_face_names)
+            except IndexError:
+                print(f"Error: Failed to encode faces in the image {image}. Skipping it.")
+
+
+        # print(self.known_face_names)
+
+
+
+        # TODO: colocar um if caso não tenha imagens na pasta
+        # TODO: limitar o tamanho da imagem do template
 
