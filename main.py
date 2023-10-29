@@ -16,6 +16,7 @@ import argparse
 import re
 import mediapipe as mp
 import copy
+import matplotlib.pyplot as plt
 
 from datetime import date, datetime
 from colorama import Fore, Style
@@ -490,6 +491,7 @@ def face_detection():
         # ----------------------------------------------------------------------------------------
         # Visualization
         # ----------------------------------------------------------------------------------------
+
          # Draw detections
         for detection in all_detections:
             detection.draw(image_gui, (0,0,255))
@@ -534,10 +536,38 @@ def face_detection():
         track_rect_ep = (int(w - w*pad_fc),int(h - h*pad_fc))
         cv2.rectangle(image_gui,track_rect_sp,track_rect_ep,(255,128,0),1)
 
-        # # Display saved face images that are not open
-        # for filename, face_image in face_image_windows.items():
-        #     if window_open[filename]:
-        #         cv2.imshow(filename, face_image)
+
+        ##################### ALTERAÇÃO PARA VER A BASE DE DADOS EM SUBPLOT #####################
+
+        # Check if the "faces" folder contains pictures
+        if not os.path.exists(faces_dir):
+            print("The 'faces' folder does not exist.")
+        else:
+            files_in_faces = [f for f in os.listdir(faces_dir) if f.endswith('.jpg')]
+            if len(files_in_faces) > 0:
+                print("Found pictures in the 'faces' folder. Displaying...")
+
+                # Create an empty canvas to display images in a grid
+                num_images = len(files_in_faces)
+                num_cols = 3  # You can adjust the number of columns in the subplot
+                num_rows = math.ceil(num_images / num_cols)
+                subplot_width = 600  # You can adjust the width of the subplot
+                subplot_height = 200  # You can adjust the height of the subplot
+                subplot = np.zeros((subplot_height, subplot_width, 3), dtype=np.uint8)
+
+                for i, filename in enumerate(face_image_windows):
+                    if window_open[filename]:
+                        x_offset = (i % num_cols) * (subplot_width // num_cols)
+                        y_offset = (i // num_cols) * (subplot_height // num_rows)
+
+                        face_image = cv2.resize(face_image_windows[filename], (subplot_width // num_cols, subplot_height // num_rows))
+                        subplot[y_offset:y_offset + subplot_height // num_rows, x_offset:x_offset + subplot_width // num_cols] = face_image
+
+                cv2.imshow("Faces Subplot", subplot)
+            else:
+                print("There are no pictures in the 'faces' folder.")
+
+        ##################### ALTERAÇÃO PARA VER A BASE DE DADOS EM SUBPLOT #####################
 
         # # Display the webcam
         # cv2.moveWindow("Frame", 1200, 100)
@@ -559,6 +589,18 @@ def face_detection():
                 if window_open[filename]:
                     cv2.destroyWindow(filename)
                     window_open[filename] = False
+
+        ##################### ALTERAÇÃO PARA APAGAR A BASE DE DADOS #####################
+
+        if k == ord('d'): # press 'd' to delete all the pictures from the datab ase
+            # Delete all images in the 'faces' folder
+            for filename in os.listdir(faces_dir):
+                if filename.endswith('.jpg'):
+                    file_path = os.path.join(faces_dir, filename)
+                    os.remove(file_path)
+            print("All pictures in the 'faces' folder have been deleted.")
+
+        ##################### ALTERAÇÃO PARA APAGAR A BASE DE DADOS #####################
                 
 
         # Update frame number
