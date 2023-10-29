@@ -86,9 +86,9 @@ def collect_data():
             self.w = 0
             self.h = 0
 
-        def findFaces(self, img, draw=True):
+        def findFaces(self, image_gui, draw=True):
 
-            img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img_rgb = cv2.cvtColor(image_gui, cv2.COLOR_BGR2RGB)
             self.results = self.faceDetection.process(img_rgb)
             # print(self.results)
 
@@ -100,20 +100,20 @@ def collect_data():
                     # bounding box creation
                     bboxC = (detection.location_data.relative_bounding_box)
 
-                    ih, iw, ic = img.shape
+                    ih, iw, ic = image_gui.shape
                     bbox = int(bboxC.xmin * iw), int(bboxC.ymin * ih), int(bboxC.width * iw), int(bboxC.height * ih) 
 
                     bboxs.append([id, bbox, detection.score])
 
                     if draw:
-                        img = self.drawDetails(img, bbox)
-                        cv2.putText(img, f'DQ: {int(detection.score[0] * 100)}%', 
+                        image_gui = self.drawDetails(image_gui, bbox)
+                        cv2.putText(image_gui, f'DQ: {int(detection.score[0] * 100)}%', 
                                     (bbox[0], bbox[1] - 100), cv2.FONT_HERSHEY_COMPLEX, 0.8, (0,255,0), 2)  # % da Detection Quality
                     
-            return img, bboxs
+            return image_gui, bboxs
         
 
-        def drawDetails(self, img, bbox, l = 30, t = 4):
+        def drawDetails(self, image_gui, bbox, l = 30, t = 4):
             x, y, w, h = bbox
             x1, y1 = x + w, y + h 
 
@@ -146,26 +146,26 @@ def collect_data():
             self.w = w
             self.h = h
 
-            # cv2.rectangle(img, bbox, (0,255,0), 1)
-            cv2.rectangle(img, (x, y), (x1, y1), (0,255,0), 1)
+            # cv2.rectangle(image_gui, bbox, (0,255,0), 1)
+            cv2.rectangle(image_gui, (x, y), (x1, y1), (0,255,0), 1)
 
             # top left corner x, y
-            cv2.line(img, (x, y), (x + l, y), (0,255,0), t)
-            cv2.line(img, (x, y), (x, y + l), (0,255,0), t)
+            cv2.line(image_gui, (x, y), (x + l, y), (0,255,0), t)
+            cv2.line(image_gui, (x, y), (x, y + l), (0,255,0), t)
             
             # top right corner x1, y
-            cv2.line(img, (x1, y), (x1 - l, y), (0,255,0), t)
-            cv2.line(img, (x1, y), (x1, y + l), (0,255,0), t)
+            cv2.line(image_gui, (x1, y), (x1 - l, y), (0,255,0), t)
+            cv2.line(image_gui, (x1, y), (x1, y + l), (0,255,0), t)
 
             # bottom left corner x, y1
-            cv2.line(img, (x, y1), (x + l, y1), (0,255,0), t)
-            cv2.line(img, (x, y1), (x, y1 - l), (0,255,0), t)
+            cv2.line(image_gui, (x, y1), (x + l, y1), (0,255,0), t)
+            cv2.line(image_gui, (x, y1), (x, y1 - l), (0,255,0), t)
             
             # bottom right corner x1, y1
-            cv2.line(img, (x1, y1), (x1 - l, y1), (0,255,0), t)
-            cv2.line(img, (x1, y1), (x1, y1 - l), (0,255,0), t)
+            cv2.line(image_gui, (x1, y1), (x1 - l, y1), (0,255,0), t)
+            cv2.line(image_gui, (x1, y1), (x1, y1 - l), (0,255,0), t)
 
-            return img
+            return image_gui
     
 
     cap = cv2.VideoCapture(0)
@@ -182,9 +182,11 @@ def collect_data():
             break
 
         # flip the web video
-        img = cv2.flip(frame, 1)
+        frame = cv2.flip(frame, 1)
 
-        img, bboxs = detector.findFaces(img,)
+        
+        image_gui = copy.deepcopy(frame)
+        image_gui, bboxs = detector.findFaces(image_gui,)
         # print(bboxs)
 
 
@@ -192,12 +194,12 @@ def collect_data():
         cTime = time.time()
         fps = 1 / (cTime - pTime)
         pTime = cTime
-        cv2.putText(img, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_COMPLEX, 0.8, (0,255,0), 2) 
+        cv2.putText(image_gui, f'FPS: {int(fps)}', (20, 70), cv2.FONT_HERSHEY_COMPLEX, 0.8, (0,255,0), 2) 
 
         # ----------------------------------------------------------------------------------------
         # Visualization
         # ----------------------------------------------------------------------------------------
-        cv2.imshow('Frame', img)
+        cv2.imshow('Frame', image_gui)
 
         k = cv2.waitKey(1) & 0xFF
 
@@ -214,23 +216,26 @@ def collect_data():
 
                     if re.match("^[A-Za-z0-9]+$", image_name):
                         image_name += '_frontal.jpg'
-                        face_image = img[detector.y:detector.y+detector.h, detector.x:detector.x+detector.w]
+                        face_image = frame[detector.y: detector.y+detector.h, detector.x:detector.x+detector.w]
                         image_path = os.path.join(data_dir, image_name)
                         cv2.imwrite(image_path, face_image)
                         print("Your frontal picture was saved with success in " + data_dir)
+                        cv2.imshow("Captured_Face", face_image)
+                        cv2.waitKey() 
+                        cv2.destroyWindow("Captured_Face")
                         break
 
                     else:
                         print("Invalid input. Please use only letters and numbers with no spaces or enters.")
+                    
 
         if k == ord('l'):
-
                 while True:  # make sure that the user writes a valid name
                     image_name = input("Enter a name for the profile taken picture: ")
 
                     if re.match("^[A-Za-z0-9]+$", image_name):
                         image_name += '_profile.jpg'
-                        face_image = img[detector.y:detector.y+detector.h, detector.x:detector.x+detector.w]
+                        face_image = image_gui[detector.y:detector.y+detector.h, detector.x:detector.x+detector.w]
                         image_path = os.path.join(data_dir, image_name)
                         cv2.imwrite(image_path, face_image)
                         print("Your profile picture was saved with success in " + data_dir)
@@ -271,7 +276,7 @@ def face_detection():
     deactivate_threshold = 8.0 # secs
     delete_threshold = 2.0 # secs
     iou_threshold = 0.3
-    tracking_padding = 0.75
+    pad_fc = 0.75
 
     video_frame_number = 0
     face_counter = 0
@@ -322,9 +327,9 @@ def face_detection():
         image_gray_lowres = cv2.resize(image_gray, (0,0), fx=image_scale, fy=image_scale)
         h, w, _ = image_gui.shape
 
-        if FaceRecognition.process_current_frame:   
-            
 
+        
+        if FaceRecognition.process_current_frame:   
             # Detect all frame faces
             FaceRecognition.face_locations = face_recognition.face_locations(image_gui_lowres)
             FaceRecognition.face_encodings = face_recognition.face_encodings(image_gui_lowres, FaceRecognition.face_locations)
@@ -338,20 +343,22 @@ def face_detection():
             
             for face_encoding in FaceRecognition.face_encodings:
                 matches = face_recognition.compare_faces(FaceRecognition.known_face_encodings, face_encoding)
-                
+                    
                 # Face's Initial values
                 name = 'Unknown' + str(face_counter)
                 accuracy = 0
                 unknown = True
     
-                face_distances = face_recognition.face_distance(FaceRecognition.known_face_encodings, face_encoding)
-                best_match_index = np.argmin(face_distances)
+                if all_known_people:
 
-                if matches[best_match_index]:
-                    name_with_ext = FaceRecognition.known_face_names[best_match_index]
-                    name = name_with_ext.split('_')[0]
-                    accuracy = face_accuracy(face_distances[best_match_index])
-                    unknown = False
+                    face_distances = face_recognition.face_distance(FaceRecognition.known_face_encodings, face_encoding)
+                    best_match_index = np.argmin(face_distances)
+               
+                    if matches[best_match_index]:
+                        name_with_ext = FaceRecognition.known_face_names[best_match_index]
+                        name = name_with_ext.split('_')[0]
+                        accuracy = face_accuracy(face_distances[best_match_index])
+                        unknown = False
 
                 FaceRecognition.face_names.append(name)
                 FaceRecognition.face_accuracy.append(accuracy)
@@ -366,11 +373,13 @@ def face_detection():
         detection_idx = 0
         for (top, right, bottom, left), name, unknown in zip(FaceRecognition.face_locations, FaceRecognition.face_names, FaceRecognition.face_unknown):      
             
-            
+            # Image scale compensation
             top    *= int(1/image_scale)
             right  *= int(1/image_scale)
             bottom *= int(1/image_scale)
             left   *= int(1/image_scale)
+
+            # print(str(left) + ',' + str(right) + ',' + str(top) + ',' + str(bottom))
             
             detection_id = 'D'+ str(video_frame_number) + '_' + str(detection_idx)
             detection_name = str(name)
@@ -434,17 +443,26 @@ def face_detection():
             track = Track('T_'+str(face_counter), detection, color=color)
             tracks.append(track)
             face_counter += 1
-            
-            
+                
         # --------------------------------------
         # Deactivate or eliminate tracks if last detection has been seen a long time ago
         # --------------------------------------
         idx_tracks_to_delete = []
         for idx_track, track in enumerate(tracks):
+            
+   
+             # Check if detection is leaving the frame
+            if    (((track.detections[-1].left   < w*pad_fc)    or 
+                    (track.detections[-1].right  > w-w*pad_fc)  or
+                    (track.detections[-1].top    < h*pad_fc)    or 
+                    (track.detections[-1].bottom > h-h*pad_fc)) and
+                    (track.active == True))                          :
+                        track.active = False
+                        print(track.track_name + ' left the room.')
+                        
             time_since_last_detection = frame_stamp - track.detections[-1].stamp
-
             # Delete unknown tracks to avoid visual trash (common with bad detections)
-            if (time_since_last_detection > delete_threshold) and (track.unknown == True):
+            if ((time_since_last_detection > delete_threshold) and (track.unknown == True)):
                 track.active = False
                 idx_tracks_to_delete.append(idx_track)
 
@@ -461,19 +479,13 @@ def face_detection():
         # Template match existing trackers that did not have an associated detection in this frame
         # --------------------------------------
 
-        # Generate a box to detect trackers leaving the frame
-        # h, w, _ = image_gui.shape
-        # tracking_padding = 0.25
-        # track_rect_sp = (int(w*tracking_padding), int(h*tracking_padding))
-        # track_rect_ep = (int(w - w*tracking_padding),int(h - h*tracking_padding))
-        # cv2.rectangle(image_gui,track_rect_sp,track_rect_ep,(0,255,0),1)
-
         for track in tracks:
+            #Check if track has a detection on this frame
             if (track.detections[-1].stamp != frame_stamp): 
+                # Track detection using template matching
                 track.track_template(image_gray, video_frame_number, frame_stamp)
-       
 
-
+                    
 
         # ----------------------------------------------------------------------------------------
         # Visualization
@@ -516,6 +528,12 @@ def face_detection():
                 missing_people.append(people)
         w_text(image_gui, 'Missing People: ' + str(missing_people),(10,h-70)) 
 
+        # Show leaving frame box
+        pad_fc = 0.05
+        track_rect_sp = (int(w*pad_fc), int(h*pad_fc))
+        track_rect_ep = (int(w - w*pad_fc),int(h - h*pad_fc))
+        cv2.rectangle(image_gui,track_rect_sp,track_rect_ep,(255,128,0),1)
+
         # # Display saved face images that are not open
         # for filename, face_image in face_image_windows.items():
         #     if window_open[filename]:
@@ -536,7 +554,6 @@ def face_detection():
         if k == ord('p'):
             cv2.waitKey(-1)
 
-
         if k == ord('c'): # press 'c' to close the windows of the images from the data base
             for filename in face_image_windows:
                 if window_open[filename]:
@@ -546,7 +563,6 @@ def face_detection():
 
         # Update frame number
         video_frame_number += 1
-
 
     cap.release()
     cv2.destroyAllWindows()
