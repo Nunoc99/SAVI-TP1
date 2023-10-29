@@ -264,6 +264,7 @@ def face_detection():
     print("-----------------Key Commands Menu---------------------\n")
     print("Press " + Fore.GREEN + "'p'", Style.RESET_ALL + "to pause the image.\n")
     print("Press " + Fore.GREEN + "'q'", Style.RESET_ALL + "to exit the program.\n")
+    print("Press " + Fore.GREEN + "'d'", Style.RESET_ALL + "to clear database.\n")
     print("Press " + Fore.GREEN + "'c'", Style.RESET_ALL + "to close the windows of the images from the data base.\n")
     print("-------------------------------------------------------\n")
     print(Fore.YELLOW + "\nSmile, you're being watched. *wink* *wink*)\n", Style.RESET_ALL)
