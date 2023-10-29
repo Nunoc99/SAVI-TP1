@@ -17,6 +17,8 @@ Dependências de pacotes:
 - `pip install mediapipe`
 - `pip install face_recognition`
 - `pip install dlib==19.22`
+- `pip install gtts`
+- `pip install pygame`
 <br>
 
 ## Guia de utilizador
