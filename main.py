@@ -427,6 +427,7 @@ def face_detection():
                         break
                     else:
                         # Just update the tracker
+                        track.track_name = detection.detection_name
                         track.update(detection) # add detection to track
                         idxs_detections_to_remove.append(idx_detection)
                         break 
@@ -545,7 +546,7 @@ def face_detection():
         else:
             files_in_faces = [f for f in os.listdir(faces_dir) if f.endswith('.jpg')]
             if len(files_in_faces) > 0:
-                print("Found pictures in the 'faces' folder. Displaying...")
+                #print("Found pictures in the 'faces' folder. Displaying...")
 
                 # Create an empty canvas to display images in a grid
                 num_images = len(files_in_faces)
@@ -562,10 +563,11 @@ def face_detection():
 
                         face_image = cv2.resize(face_image_windows[filename], (subplot_width // num_cols, subplot_height // num_rows))
                         subplot[y_offset:y_offset + subplot_height // num_rows, x_offset:x_offset + subplot_width // num_cols] = face_image
+                        w_text(subplot, filename, (x_offset, y_offset+10))
 
-                cv2.imshow("Faces Subplot", subplot)
-            else:
-                print("There are no pictures in the 'faces' folder.")
+                cv2.imshow("Faces Database", subplot)
+                cv2.moveWindow("Faces Database", 1000,50)
+
 
         ##################### ALTERAÇÃO PARA VER A BASE DE DADOS EM SUBPLOT #####################
 
