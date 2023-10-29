@@ -3,8 +3,8 @@
 # Authors:  José Silva, Mário Vasconcelos, Nuno Cunha
 # Nmec:     103268, 84081, 95167
 # Email:    josesilva8@ua.pt, mario.vasconcelos@ua.pt, nunocunha99@ua.pt
-# Version:  1.2
-# Date:     28/10/2023
+# Version:  1.4
+# Date:     29/10/2023
 
 import cv2
 import numpy as np
