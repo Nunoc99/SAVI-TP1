@@ -263,7 +263,8 @@ def face_detection():
     print("-----------------Key Commands Menu---------------------\n")
     print("Press " + Fore.GREEN + "'p'", Style.RESET_ALL + "to pause the image.\n")
     print("Press " + Fore.GREEN + "'q'", Style.RESET_ALL + "to exit the program.\n")
-    print("Press " + Fore.GREEN + "'d'", Style.RESET_ALL + "to clear database.\n")
+    print("Press " + Fore.GREEN + "'d'", Style.RESET_ALL + "to clear the image and audio database.\n")
+    print("Press " + Fore.GREEN + "'r'", Style.RESET_ALL + "to recognize unknown people.\n")
     print("-------------------------------------------------------\n")
     print(Fore.YELLOW + "\nSmile, you're being watched. *wink* *wink*\n", Style.RESET_ALL)
 
@@ -631,7 +632,7 @@ def face_detection():
                     file_path = os.path.join(faces_dir, filename)
                     os.remove(file_path)
 
-            # Delete all images in the 'faces' folder
+            # Delete all audios in the 'faces' folder
             for filename in os.listdir(audio_dir):
                 if filename.endswith('.mp3'):
                     file_path = os.path.join(audio_dir, filename)
