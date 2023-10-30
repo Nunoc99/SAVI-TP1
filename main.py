@@ -328,6 +328,11 @@ def face_detection():
     all_known_people = list(dict.fromkeys(all_known_people))
     #print('Known people: ' + str(all_known_people))
 
+    # Create audio file
+    for people in all_known_people:
+        text_to_speech(people, language='pt')
+        
+
     # Create a dictionary to keep track of whether each window is open
     window_open = {filename: True for filename in face_image_windows}
     
@@ -471,9 +476,6 @@ def face_detection():
             color = (randint(0, 255), randint(0, 255), randint(0, 255))
             track = Track('T_'+str(face_counter), detection, color=color)
             tracks.append(track)
-            if not (detection.unknown):
-                text_to_speech(track.track_name, language='pt')
-            
                 
         # --------------------------------------
         # Deactivate or eliminate tracks if last detection has been seen a long time ago
@@ -527,7 +529,6 @@ def face_detection():
                 if (track.called == False and track.unknown == False):
                     txt_speech(track.track_name)
                     track.called = True
-
                     print('Hello ' + str(track.track_name))
                     break
 
@@ -612,12 +613,9 @@ def face_detection():
                 cv2.moveWindow("Faces Database", 1000,50)
 
 
-        ##################### ALTERAÇÃO PARA VER A BASE DE DADOS EM SUBPLOT #####################
-
         # # Display the webcam
         # cv2.moveWindow("Frame", 1200, 100)
         cv2.imshow('Frame', image_gui)
-        
 
         k = cv2.waitKey(1) & 0xFF
 
