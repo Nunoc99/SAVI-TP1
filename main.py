@@ -550,10 +550,10 @@ def face_detection():
 
                 
         # Show all known peolpe
-        w_text(image_gui, 'All Known People: ' + str(all_known_people),(10,h-70))  
+        w_text(image_gui, 'All Known People: ' + str(all_known_people),(10,h-80))  
 
         #Show active detections
-        w_text(image_gui, 'Active Detections: ' + str(active_detections),(10,h-30))  
+        w_text(image_gui, 'Active Detections: ' + str(active_detections),(10,h-40))  
 
 
         #Show active tracks
@@ -561,7 +561,7 @@ def face_detection():
         for idx, track in enumerate(tracks):
             if track.active:
                 active_tracks.append(track.track_name)
-        w_text(image_gui, 'Active tracks: ' +str(active_tracks),(10,h-10))      
+        w_text(image_gui, 'Active tracks: ' +str(active_tracks),(10,h-20))      
 
         # Show missing people
         missing_people = []
@@ -570,7 +570,7 @@ def face_detection():
                 pass
             else:
                 missing_people.append(people)
-        w_text(image_gui, 'Missing People: ' + str(missing_people),(10,h-50)) 
+        w_text(image_gui, 'Missing People: ' + str(missing_people),(10,h-60)) 
 
         # Show leaving frame box
         pad_fc = 0.05
