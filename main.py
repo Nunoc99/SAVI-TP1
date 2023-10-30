@@ -449,7 +449,7 @@ def face_detection():
                     if (detection.unknown == False) and (track.unknown == True): 
                         # Update the unknonw tracker with face data
                         track.track_name = detection.detection_name
-                        track.known = True
+                        track.unknown = True
                         idxs_detections_to_remove.append(idx_detection)
                         break
                     else:
@@ -580,7 +580,7 @@ def face_detection():
         cv2.rectangle(image_gui,track_rect_sp,track_rect_ep,(255,128,0),1)
 
 
-        ##################### ALTERAÇÃO PARA VER A BASE DE DADOS EM SUBPLOT #####################
+        # Show subplot for DB
 
         # Check if the "faces" folder contains pictures
         if not os.path.exists(faces_dir):
@@ -680,7 +680,7 @@ def main():
         face_detection()
     else:
         print("Define your arguments or type -h for help")
-
+        exit(0)
 
 
 
