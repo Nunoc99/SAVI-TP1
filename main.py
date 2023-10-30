@@ -520,13 +520,13 @@ def face_detection():
         #----------------------------------------------------------------------------------------
         # Text to Speech
         #----------------------------------------------------------------------------------------
-        
         # Timer with no sleep
         if (frame_stamp - previous_tts) >= tts_interval:
             previous_tts = frame_stamp
 
             for track in tracks :
                 if (track.called == False and track.unknown == False):
+
                     txt_speech(track.track_name)
                     track.called = True
                     print('Hello ' + str(track.track_name))
@@ -549,6 +549,8 @@ def face_detection():
         # Add frame number and time to top left corner
         w_text(image_gui, 'Frame ' + str(video_frame_number), (10,20) )
         w_text(image_gui, 'Time ' + str(frame_stamp) + ' s',(10,45))
+        
+        w_text(image_gui, 'FPS ' + str(frame_stamp/video_frame_number) + ' s',(10,65))
 
                 
         # Show all known peolpe
