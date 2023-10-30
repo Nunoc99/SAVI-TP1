@@ -28,7 +28,7 @@ Dependências de pacotes:
 ## Demonstração
 O video demonstra um funcionamento rápido da aplicação
 
-https://github.com/Nunoc99/SAVI-TP1/assets/145439915/8315373a-4027-4873-899f-8a9921937724
+https://github.com/Nunoc99/SAVI-TP1/assets/145439915/e8f0e4c0-349a-48c6-9e1b-d1ea8d92a7d0
 
 ## Atualizações
 Update, o new_main e o faceRecog para correr devem instalar/atualizar o seguinte:
