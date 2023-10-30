@@ -23,6 +23,7 @@ from colorama import Fore, Style
 from collections import namedtuple
 from faceRecog import *
 from track import *
+from txtts import * 
 
 
 # Definição de Argumentos/help menu
@@ -265,9 +266,8 @@ def face_detection():
     print("Press " + Fore.GREEN + "'p'", Style.RESET_ALL + "to pause the image.\n")
     print("Press " + Fore.GREEN + "'q'", Style.RESET_ALL + "to exit the program.\n")
     print("Press " + Fore.GREEN + "'d'", Style.RESET_ALL + "to clear database.\n")
-    print("Press " + Fore.GREEN + "'c'", Style.RESET_ALL + "to close the windows of the images from the data base.\n")
     print("-------------------------------------------------------\n")
-    print(Fore.YELLOW + "\nSmile, you're being watched. *wink* *wink*)\n", Style.RESET_ALL)
+    print(Fore.YELLOW + "\nSmile, you're being watched. *wink* *wink*\n", Style.RESET_ALL)
 
 
     # ----------------------------------------------------------------------------------------
@@ -279,9 +279,12 @@ def face_detection():
     delete_threshold = 2.0 # secs
     iou_threshold = 0.3
     pad_fc = 0.75
+    tts_interval = 2
+  
 
     video_frame_number = 0
     face_counter = 0
+    previous_tts=0
     tracks = []
 
     # Load the faceRecog features
@@ -307,11 +310,18 @@ def face_detection():
         all_known_people.append(name[0])
 
     all_known_people = list(dict.fromkeys(all_known_people))
-    print('Known people: ' + str(all_known_people))
+    #print('Known people: ' + str(all_known_people))
+
+    # Create audio files for all known people
+    for people in all_known_people:
+        text_to_speech(people, language='pt') # create audio files for all known people
+
+    people_to_call = []   
+    idx_people_to_call = 0
 
     # Create a dictionary to keep track of whether each window is open
     window_open = {filename: True for filename in face_image_windows}
-
+    
     while (cap.isOpened()):
 
         ret, image_rgb = cap.read()
@@ -342,6 +352,8 @@ def face_detection():
             FaceRecognition.face_names    = []
             FaceRecognition.face_accuracy = []
             FaceRecognition.face_unknown  = []
+
+            
             
             for face_encoding in FaceRecognition.face_encodings:
                 matches = face_recognition.compare_faces(FaceRecognition.known_face_encodings, face_encoding)
@@ -452,8 +464,7 @@ def face_detection():
         # --------------------------------------
         idx_tracks_to_delete = []
         for idx_track, track in enumerate(tracks):
-            
-   
+        
              # Check if detection is leaving the frame
             if    (((track.detections[-1].left   < w*pad_fc)    or 
                     (track.detections[-1].right  > w-w*pad_fc)  or
@@ -461,7 +472,7 @@ def face_detection():
                     (track.detections[-1].bottom > h-h*pad_fc)) and
                     (track.active == True))                          :
                         track.active = False
-                        print(track.track_name + ' left the room.')
+                        # print(track.track_name + ' left the room.')
                         
             time_since_last_detection = frame_stamp - track.detections[-1].stamp
             # Delete unknown tracks to avoid visual trash (common with bad detections)
@@ -488,7 +499,22 @@ def face_detection():
                 # Track detection using template matching
                 track.track_template(image_gray, video_frame_number, frame_stamp)
 
-                    
+        #----------------------------------------------------------------------------------------
+        # Text to Speech
+        #----------------------------------------------------------------------------------------
+        
+        # Timer with no sleep
+        if (frame_stamp - previous_tts) >= tts_interval:
+            previous_tts = frame_stamp
+
+            for track in tracks :
+                if (track.called == False and track.unknown == False):
+
+                    txt_speech(track.track_name)
+                    track.called = True
+
+                    print(str(track.track_name)+' called')
+                    break
 
         # ----------------------------------------------------------------------------------------
         # Visualization
@@ -509,6 +535,16 @@ def face_detection():
         w_text(image_gui, 'Time ' + str(frame_stamp) + ' s',(10,45))
         w_text(image_gui, '_____________', (10,55))
 
+                
+        # Show all known peolpe
+        w_text(image_gui, 'All Known People: ' + str(all_known_people),(10,h-70))  
+
+
+
+
+        #Show active detections
+        w_text(image_gui, 'Active Detections: ' + str(active_detections),(10,h-30))  
+
 
         #Show active tracks
         active_tracks = []
@@ -517,12 +553,6 @@ def face_detection():
                 active_tracks.append(track.track_name)
         w_text(image_gui, 'Active tracks: ' +str(active_tracks),(10,h-10))      
 
-        #Show active detections
-        w_text(image_gui, 'Active Detections: ' + str(active_detections),(10,h-30))  
-        
-        # Show all known peolpe
-        w_text(image_gui, 'Known People: ' + str(all_known_people),(10,h-50))  
-
         # Show missing people
         missing_people = []
         for people in all_known_people:
@@ -530,7 +560,10 @@ def face_detection():
                 pass
             else:
                 missing_people.append(people)
-        w_text(image_gui, 'Missing People: ' + str(missing_people),(10,h-70)) 
+        w_text(image_gui, 'Missing People: ' + str(missing_people),(10,h-50)) 
+
+
+
 
         # Show leaving frame box
         pad_fc = 0.05
@@ -551,7 +584,7 @@ def face_detection():
 
                 # Create an empty canvas to display images in a grid
                 num_images = len(files_in_faces)
-                num_cols = 3  # You can adjust the number of columns in the subplot
+                num_cols = len(files_in_faces)  # You can adjust the number of columns in the subplot
                 num_rows = math.ceil(num_images / num_cols)
                 subplot_width = 600  # You can adjust the width of the subplot
                 subplot_height = 200  # You can adjust the height of the subplot
@@ -586,13 +619,6 @@ def face_detection():
         # Stop recording    
         if k == ord('p'):
             cv2.waitKey(-1)
-
-        if k == ord('c'): # press 'c' to close the windows of the images from the data base
-            for filename in face_image_windows:
-                if window_open[filename]:
-                    cv2.destroyWindow(filename)
-                    window_open[filename] = False
-
         ##################### ALTERAÇÃO PARA APAGAR A BASE DE DADOS #####################
 
         if k == ord('d'): # press 'd' to delete all the pictures from the datab ase

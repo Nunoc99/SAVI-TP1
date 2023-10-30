@@ -7,7 +7,7 @@ import face_recognition
 import math
 
 
-def face_accuracy(face_distance, face_match_threshold = 0.75):
+def face_accuracy(face_distance, face_match_threshold = 0.85):
     range = (1.0 - face_match_threshold)
     lin_val = (1.0 - face_distance) / (range * 2.0)
 

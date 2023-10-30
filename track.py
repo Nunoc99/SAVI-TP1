@@ -90,9 +90,10 @@ class Track():
         self.detections = [detection]
         self.active = True
         self.unknown = detection.unknown
+        self.called = False
 
         
-        #print('Starting constructor for track id ' + str(self.track_name) + ' from det. name ' + detection.detection_name)
+        print('Starting constructor for track id ' + str(self.track_name) + ' from det. name ' + detection.detection_name)
 
     def draw(self, image):
 
