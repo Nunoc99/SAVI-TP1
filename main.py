@@ -38,9 +38,15 @@ args = parser.parse_args()
 today = date.today()
 today_date = today.strftime("%B %d, %Y")
 
-def w_text(image, text, pos):
-    cv2.putText(image, text, pos, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1, cv2.LINE_AA)
-     
+# def w_text(image, text, pos):
+#     cv2.putText(image, text, pos, cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1, cv2.LINE_AA)
+def w_text(image, text, pos, font=cv2.FONT_HERSHEY_SIMPLEX, font_scale=1,font_thickness=1):
+    text_size , _ = cv2.getTextSize(text , font, font_scale*0.5 , font_thickness)
+    text_w, text_h = text_size
+    x,y=pos
+    y1= y-2
+    cv2.rectangle(image,(x,y1), (x + text_w + 1, y + text_h+5), (0,255,0),-1)
+    cv2.putText(image, text, (x, y + text_h + font_scale - 1), font, font_scale*0.5, (0,0,0), font_thickness, cv2.LINE_AA)   
 # -----------------------------------------------------------------------------------------------------------------------------------
 # -------------------------------------------------------- COLLECT DATA AREA --------------------------------------------------------
 # ------------------------------------------------------------- DONE! ---------------------------------------------------------------
@@ -465,6 +471,8 @@ def face_detection():
             color = (randint(0, 255), randint(0, 255), randint(0, 255))
             track = Track('T_'+str(face_counter), detection, color=color)
             tracks.append(track)
+            if not (detection.unknown):
+                text_to_speech(track.track_name, language='pt')
             
                 
         # --------------------------------------
@@ -517,11 +525,10 @@ def face_detection():
 
             for track in tracks :
                 if (track.called == False and track.unknown == False):
-                    text_to_speech(track.track_name, language='pt')
                     txt_speech(track.track_name)
                     track.called = True
 
-                    print(str(track.track_name)+' called')
+                    print('Hello ' + str(track.track_name))
                     break
 
         # ----------------------------------------------------------------------------------------
@@ -541,7 +548,6 @@ def face_detection():
         # Add frame number and time to top left corner
         w_text(image_gui, 'Frame ' + str(video_frame_number), (10,20) )
         w_text(image_gui, 'Time ' + str(frame_stamp) + ' s',(10,45))
-        w_text(image_gui, '_____________', (10,55))
 
                 
         # Show all known peolpe
@@ -631,13 +637,6 @@ def face_detection():
                 if filename.endswith('.jpg'):
                     file_path = os.path.join(faces_dir, filename)
                     os.remove(file_path)
-
-            # Delete all audios in the 'faces' folder
-            for filename in os.listdir(audio_dir):
-                if filename.endswith('.mp3'):
-                    file_path = os.path.join(audio_dir, filename)
-                    os.remove(file_path)
-                    
             cap.release()
             cv2.destroyAllWindows()    
             return
