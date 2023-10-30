@@ -4,7 +4,7 @@ import gtts
 def text_to_speech(text, language='en', speed='normal'):
 
   # Create a gTTS object.
-  tts = gtts.gTTS(text='Hello '+text, lang=language, slow=False if speed == 'normal' else True)
+  tts = gtts.gTTS(text='Olá '+text, lang=language, slow=False if speed == 'normal' else True)
 
   # Save the audio file.
   audio_file = 'Audio/speech' + text + '.mp3'
