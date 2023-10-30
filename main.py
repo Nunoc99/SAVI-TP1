@@ -223,8 +223,6 @@ def collect_data():
                         cv2.imwrite(image_path, face_image)
                         print("Your frontal picture was saved with success in " + data_dir)
                         cv2.imshow("Captured_Face", face_image)
-                        cv2.waitKey() 
-                        cv2.destroyWindow("Captured_Face")
                         break
 
                     else:
@@ -290,6 +288,8 @@ def face_detection():
     tracks = []
 
     # Delete all Audio in the 'Audio' folder
+    if not os.path.isdir(audio_dir):
+        os.makedirs(audio_dir)
     for filename in os.listdir(audio_dir):
         if filename.endswith('.mp3'):
             file_path = os.path.join(audio_dir, filename)
@@ -302,6 +302,8 @@ def face_detection():
     fr = FaceRecognition()
 
     # Load images from the "faces" folder
+    if not os.path.isdir(faces_dir):
+        os.makedirs(faces_dir)
     face_images = [os.path.join(faces_dir, filename) for filename in os.listdir(faces_dir) if filename.endswith('.jpg')]
     face_image_windows = {}
     for face_image_path in face_images:
