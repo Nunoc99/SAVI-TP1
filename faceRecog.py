@@ -33,7 +33,18 @@ class FaceRecognition():
     def __init__(self):
         self.encode_faces()
 
+    def reset(self):
+        face_locations = []
+        face_encodings = []
+        face_names = []
+        known_face_encodings = []
+        known_face_names = []
+        process_current_frame = True
+        face_accuracy = []
+        face_unknown = []
 
+        self.encode_faces()
+        
     def encode_faces(self):
         for image in os.listdir('faces'):
             
