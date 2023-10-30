@@ -269,7 +269,8 @@ def face_detection():
     print("-----------------Key Commands Menu---------------------\n")
     print("Press " + Fore.GREEN + "'p'", Style.RESET_ALL + "to pause the image.\n")
     print("Press " + Fore.GREEN + "'q'", Style.RESET_ALL + "to exit the program.\n")
-    print("Press " + Fore.GREEN + "'d'", Style.RESET_ALL + "to clear database.\n")
+    print("Press " + Fore.GREEN + "'d'", Style.RESET_ALL + "to clear the image and audio database.\n")
+    print("Press " + Fore.GREEN + "'r'", Style.RESET_ALL + "to recognize unknown people.\n")
     print("-------------------------------------------------------\n")
     print(Fore.YELLOW + "\nSmile, you're being watched. *wink* *wink*\n", Style.RESET_ALL)
 
@@ -636,7 +637,6 @@ def face_detection():
                 if filename.endswith('.jpg'):
                     file_path = os.path.join(faces_dir, filename)
                     os.remove(file_path)
-
             cap.release()
             cv2.destroyAllWindows()    
             return
